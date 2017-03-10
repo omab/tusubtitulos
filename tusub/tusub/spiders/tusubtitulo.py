@@ -36,28 +36,43 @@ class TusubtituloSpider(Spider):
         })
 
     def parse_season(self, response):
-        items = []
-        show = response.meta.get('show')
-        scheme = response.meta.get('scheme')
-        show_url = response.meta.get('show_url')
         for table in response.xpath('//table'):
-            items += self.parse_episode(show, show_url, scheme, table)
-        return items
+            link = table.xpath('.//tr[1]/td[@class = "NewsTitle"]/a')
+            name = link.xpath('text()').extract_first()
+            url = link.xpath('@href').extract_first()
+            url = '{scheme}:{url}'.format(scheme=response.meta['scheme'],
+                                          url=url)
+            yield Request(url, self.parse_episode, meta={
+                'name': name,
+                'show': response.meta['show'],
+                'show_url': response.meta['show_url'],
+                'scheme': response.meta['scheme']
+            }, headers={
+                'Referer': response.meta['show_url']
+            })
 
-    def parse_episode(self, show, show_url, scheme, table):
+    def parse_episode(self, response):
         items = []
-        rows = table.xpath('.//tr//td[@class="language"]/..')
+        name = response.meta['name']
+        show = response.meta['show']
+        show_url = response.meta['show_url']
+        index = 0
 
-        for index, row in enumerate(rows):
-            loader = ItemLoader(SubtitleItem(), row)
-            loader.add_value('show_url', show_url)
-            loader.add_value('show', show)
-            loader.add_value('index', index)
-            loader.add_css('language', '.language::text')
-            loader.add_xpath('status', './/td[6]/text()')
-            loader.add_value('file_urls', [
-                '{scheme}:{url}'.format(scheme=scheme, url=url)
-                for url in row.xpath('.//td[7]/a/@href').extract()
-            ])
-            items.append(loader.load_item())
+        for section in response.xpath('.//li[@class = "li-idioma"]/..'):
+            if section.css('.li-estado.green').extract():
+                # subtitle completed
+                loader = ItemLoader(SubtitleItem(), section)
+                loader.add_value('show_url', show_url)
+                loader.add_value('show', show)
+                loader.add_value('name', name)
+                loader.add_value('index', index)
+                loader.add_css('language', '.li-idioma b::text')
+                urls = []
+                for href in section.css('.download a').xpath('@href').extract():
+                    if href.startswith('a/'):
+                        continue
+                    urls.append(response.urljoin(href))
+                loader.add_value('file_urls', urls)
+                items.append(loader.load_item())
+                index += 1
         return items

@@ -18,7 +18,8 @@ USER_AGENT = 'User-Agent=Mozilla/5.0 (Windows NT 10.0; WOW64) ' + \
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-#DOWNLOAD_DELAY = 3
+# tusubtitulo.com dies if we hit it too often
+DOWNLOAD_DELAY = 3
 
 COOKIES_ENABLED = True
 
