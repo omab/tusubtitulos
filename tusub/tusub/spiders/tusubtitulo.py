@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from six.moves.urllib_parse import urlparse
 
+from guessit import guessit
+
 from scrapy import Spider, Request
 from scrapy.loader import ItemLoader
 
@@ -8,6 +10,7 @@ from ..items import SubtitleItem
 
 
 class TusubtituloSpider(Spider):
+    """Tusubtitulo.com crawler"""
     name = 'tusubtitulo'
     allowed_domains = [
         'www.tusubtitulo.com'
@@ -16,16 +19,38 @@ class TusubtituloSpider(Spider):
         # supergirl
         'https://www.tusubtitulo.com/show/2438',
         # the big bang theory
-        'https://www.tusubtitulo.com/show/26',
+        # 'https://www.tusubtitulo.com/show/26',
         # the flash
-        'https://www.tusubtitulo.com/show/2125'
+        # 'https://www.tusubtitulo.com/show/2125',
+        # silicon valley
+        # 'https://www.tusubtitulo.com/show/2048',
     ]
 
     ajax_url = 'https://www.tusubtitulo.com/ajax_loadShow.php?show={show}&season={season}'
 
+    @property
+    def saved_cache(self):
+        """Saved subtitles cache"""
+        return getattr(self, '_cache')
+
+    @saved_cache.setter
+    def saved_cache(self, value):
+        """Set saved subtitles cache"""
+        setattr(self, '_cache', value)
+
+    def cached(self, name):
+        """Return if we already downloaded a subtitle for the given
+        title"""
+        guess = guessit(name)
+        title = guess['title'].lower()
+        season = str(guess['season'])
+        episode = int(guess['episode'])
+        return episode in self.saved_cache.get(title, {}).get(season, [])
+
     def parse(self, response):
+        """Parse main response"""
         show = response.url.split('/')[-1]
-        season = response.css('#contenido') \
+        season = response.css('#content') \
                          .xpath('.//table/tr/td[4]/span/a[last()]//text()') \
                          .extract_first()
         url = self.ajax_url.format(show=show, season=season)
@@ -36,9 +61,14 @@ class TusubtituloSpider(Spider):
         })
 
     def parse_season(self, response):
+        """Parse season"""
         for table in response.xpath('//table'):
-            link = table.xpath('.//tr[1]/td[@class = "NewsTitle"]/a')
+            link = table.xpath('.//tr[1]/td[@class="NewsTitle"]/a')
             name = link.xpath('text()').extract_first()
+
+            if self.cached(name):
+                continue
+
             url = link.xpath('@href').extract_first()
             url = '{scheme}:{url}'.format(scheme=response.meta['scheme'],
                                           url=url)
@@ -52,6 +82,7 @@ class TusubtituloSpider(Spider):
             })
 
     def parse_episode(self, response):
+        """Parse episode"""
         items = []
         name = response.meta['name']
         show = response.meta['show']

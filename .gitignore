@@ -1,3 +1,4 @@
 *.pyc
+tusub/subtitles.json
 tusub/files/
 tusub/.scrapy/

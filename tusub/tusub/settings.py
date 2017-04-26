@@ -6,6 +6,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BOT_NAME = 'tusub'
 
+DEBUG = False
+
 SPIDER_MODULES = ['tusub.spiders']
 NEWSPIDER_MODULE = 'tusub.spiders'
 
@@ -24,14 +26,19 @@ DOWNLOAD_DELAY = 3
 COOKIES_ENABLED = True
 
 ITEM_PIPELINES = {
-    'tusub.pipelines.DownloadSubtitlePipeline': 300
+    'tusub.pipelines.DownloadSubtitlePipeline': 300,
+    'tusub.pipelines.AllocateSubtitlePipeline': 500
 }
 
-# HTTPCACHE_ENABLED = False
-# HTTPCACHE_EXPIRATION_SECS = 0
-# HTTPCACHE_DIR = 'httpcache'
-# HTTPCACHE_IGNORE_HTTP_CODES = []
-# HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+HTTPCACHE_ENABLED = True
+HTTPCACHE_EXPIRATION_SECS = 0
+HTTPCACHE_DIR = 'httpcache'
+HTTPCACHE_IGNORE_HTTP_CODES = []
+HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 FILES_STORE = os.path.join(BASE_DIR, 'files')
 FILES_EXPIRES = 0
+
+SUBTITLES_CACHE_FILE = os.path.join(BASE_DIR, 'subtitles.json')
+SUBTITLES_FINAL_LOCATION = '/media/series'
+SUPPORTED_VIDEO_EXTENSIONS = ['mkv', 'mp4']
