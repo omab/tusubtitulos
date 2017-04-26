@@ -16,14 +16,48 @@ class TusubtituloSpider(Spider):
         'www.tusubtitulo.com'
     ]
     start_urls = [
+        # 12 monkeys
+        'https://www.tusubtitulo.com/show/2320',
+        # arrow
+        'https://www.tusubtitulo.com/show/1493',
+        # the big bang theory
+        'https://www.tusubtitulo.com/show/26',
+        # the blacklist
+        'https://www.tusubtitulo.com/show/1832',
+        # blindspot
+        'https://www.tusubtitulo.com/show/2515',
+        # continuum
+        'https://www.tusubtitulo.com/show/1336',
+        # dc's legends of tomorrow
+        'https://www.tusubtitulo.com/show/2651',
+        # dr who
+        'https://www.tusubtitulo.com/show/117',
+        # falling skies
+        'https://www.tusubtitulo.com/show/967',
+        # the flash
+        'https://www.tusubtitulo.com/show/2125',
+        # game of thrones
+        'https://www.tusubtitulo.com/show/770',
+        # haven
+        'https://www.tusubtitulo.com/show/620',
+        # shield
+        'https://www.tusubtitulo.com/show/1852',
+        # mr robot
+        'https://www.tusubtitulo.com/show/2442',
+        # once upon a time
+        'https://www.tusubtitulo.com/show/1116',
+        # sherlock
+        'https://www.tusubtitulo.com/show/635',
+        # silicon valley
+        'https://www.tusubtitulo.com/show/2048',
         # supergirl
         'https://www.tusubtitulo.com/show/2438',
-        # the big bang theory
-        # 'https://www.tusubtitulo.com/show/26',
-        # the flash
-        # 'https://www.tusubtitulo.com/show/2125',
-        # silicon valley
-        # 'https://www.tusubtitulo.com/show/2048',
+        # supernatural
+        'https://www.tusubtitulo.com/show/12',
+        # under the dome
+        'https://www.tusubtitulo.com/show/1747',
+        # the walking dead
+        'https://www.tusubtitulo.com/show/750'
     ]
 
     ajax_url = 'https://www.tusubtitulo.com/ajax_loadShow.php?show={show}&season={season}'
