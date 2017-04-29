@@ -19,6 +19,7 @@ cleaner = Compose(first, strip, lower)
 
 
 class SubtitleItem(Item):
+    config_name = Field(output_processor=TakeFirst())
     show_url = Field(output_processor=cleaner)
     show = Field(output_processor=TakeFirst())
     name = Field(output_processor=cleaner)

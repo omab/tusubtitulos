@@ -6,6 +6,7 @@ from guessit import guessit
 from scrapy import Spider, Request
 from scrapy.loader import ItemLoader
 
+from ..settings import SERIES
 from ..items import SubtitleItem
 
 
@@ -16,48 +17,7 @@ class TusubtituloSpider(Spider):
         'www.tusubtitulo.com'
     ]
     start_urls = [
-        # 12 monkeys
-        'https://www.tusubtitulo.com/show/2320',
-        # arrow
-        'https://www.tusubtitulo.com/show/1493',
-        # the big bang theory
-        'https://www.tusubtitulo.com/show/26',
-        # the blacklist
-        'https://www.tusubtitulo.com/show/1832',
-        # blindspot
-        'https://www.tusubtitulo.com/show/2515',
-        # continuum
-        'https://www.tusubtitulo.com/show/1336',
-        # dc's legends of tomorrow
-        'https://www.tusubtitulo.com/show/2651',
-        # dr who
-        'https://www.tusubtitulo.com/show/117',
-        # falling skies
-        'https://www.tusubtitulo.com/show/967',
-        # the flash
-        'https://www.tusubtitulo.com/show/2125',
-        # game of thrones
-        'https://www.tusubtitulo.com/show/770',
-        # haven
-        'https://www.tusubtitulo.com/show/620',
-        # shield
-        'https://www.tusubtitulo.com/show/1852',
-        # mr robot
-        'https://www.tusubtitulo.com/show/2442',
-        # once upon a time
-        'https://www.tusubtitulo.com/show/1116',
-        # sherlock
-        'https://www.tusubtitulo.com/show/635',
-        # silicon valley
-        'https://www.tusubtitulo.com/show/2048',
-        # supergirl
-        'https://www.tusubtitulo.com/show/2438',
-        # supernatural
-        'https://www.tusubtitulo.com/show/12',
-        # under the dome
-        'https://www.tusubtitulo.com/show/1747',
-        # the walking dead
-        'https://www.tusubtitulo.com/show/750'
+        'https://www.tusubtitulo.com/'
     ]
 
     ajax_url = 'https://www.tusubtitulo.com/ajax_loadShow.php?show={show}&season={season}'
@@ -82,6 +42,13 @@ class TusubtituloSpider(Spider):
         return episode in self.saved_cache.get(title, {}).get(season, [])
 
     def parse(self, response):
+        """Yield each configured serie request"""
+        for name, serie in SERIES.items():
+            yield Request(serie['url'], self.parse_serie, meta={
+                'config_name': name
+            })
+
+    def parse_serie(self, response):
         """Parse main response"""
         show = response.url.split('/')[-1]
         season = response.css('#content') \
@@ -89,6 +56,7 @@ class TusubtituloSpider(Spider):
                          .extract_first()
         url = self.ajax_url.format(show=show, season=season)
         yield Request(url, self.parse_season, meta={
+            'config_name': response.meta['config_name'],
             'show': show,
             'scheme': urlparse(response.url).scheme,
             'show_url': response.url
@@ -107,6 +75,7 @@ class TusubtituloSpider(Spider):
             url = '{scheme}:{url}'.format(scheme=response.meta['scheme'],
                                           url=url)
             yield Request(url, self.parse_episode, meta={
+                'config_name': response.meta['config_name'],
                 'name': name,
                 'show': response.meta['show'],
                 'show_url': response.meta['show_url'],
@@ -118,6 +87,7 @@ class TusubtituloSpider(Spider):
     def parse_episode(self, response):
         """Parse episode"""
         items = []
+        config_name = response.meta['config_name']
         name = response.meta['name']
         show = response.meta['show']
         show_url = response.meta['show_url']
@@ -127,6 +97,7 @@ class TusubtituloSpider(Spider):
             if section.css('.li-estado.green').extract():
                 # subtitle completed
                 loader = ItemLoader(SubtitleItem(), section)
+                loader.add_value('config_name', config_name)
                 loader.add_value('show_url', show_url)
                 loader.add_value('show', show)
                 loader.add_value('name', name)

@@ -13,9 +13,9 @@ from scrapy.http import Request
 from scrapy.pipelines.files import FilesPipeline
 
 from .settings import FILES_STORE, \
-    SUBTITLES_FINAL_LOCATION, \
     SUPPORTED_VIDEO_EXTENSIONS, \
-    SUBTITLES_CACHE_FILE
+    SUBTITLES_CACHE_FILE, \
+    SERIES
 
 
 logging.getLogger('rebulk.rules').setLevel(logging.WARNING)
@@ -72,7 +72,8 @@ class AllocateSubtitlePipeline(object):
         """Process the item downloaded files and store them in a
         better place"""
         for file_info in item['files']:
-            final_path = self.final_path(item['name'])
+            final_path = self.final_path(SERIES[item['config_name']],
+                                         item['name'])
             if final_path:
                 guess = guessit(item['name'])
                 title = guess['title'].lower()
@@ -89,14 +90,14 @@ class AllocateSubtitlePipeline(object):
                 copyfile(path.join(FILES_STORE, file_info['path']),
                          final_path)
 
-    def final_path(self, name):
+    def final_path(self, serie_conf, name):
         """Detect closer video file in destination"""
         guess = guessit(name)
 
         for ext in SUPPORTED_VIDEO_EXTENSIONS:
             for path_format in self.paths:
                 # files exists in that pseudo path
-                path_glob = path_format.format(path=SUBTITLES_FINAL_LOCATION,
+                path_glob = path_format.format(path=serie_conf['location'],
                                                extension=ext,
                                                **guess)
                 path_glob = path_glob.replace(' ', '_')
