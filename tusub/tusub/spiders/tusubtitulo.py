@@ -32,18 +32,19 @@ class TusubtituloSpider(Spider):
         """Set saved subtitles cache"""
         setattr(self, '_cache', value)
 
-    def cached(self, name):
+    def cached(self, config_name, name):
         """Return if we already downloaded a subtitle for the given
         title"""
         guess = guessit(name)
-        title = guess['title'].lower()
         season = str(guess['season'])
         episode = int(guess['episode'])
-        return episode in self.saved_cache.get(title, {}).get(season, [])
+        return episode in self.saved_cache.get(config_name, {}).get(season, [])
 
     def parse(self, response):
         """Yield each configured serie request"""
         for name, serie in SERIES.items():
+            if not serie['enabled']:
+                continue
             yield Request(serie['url'], self.parse_serie, meta={
                 'config_name': name
             })
@@ -64,18 +65,20 @@ class TusubtituloSpider(Spider):
 
     def parse_season(self, response):
         """Parse season"""
+        config_name = response.meta['config_name']
+
         for table in response.xpath('//table'):
             link = table.xpath('.//tr[1]/td[@class="NewsTitle"]/a')
             name = link.xpath('text()').extract_first()
 
-            if self.cached(name):
+            if self.cached(config_name, name):
                 continue
 
             url = link.xpath('@href').extract_first()
             url = '{scheme}:{url}'.format(scheme=response.meta['scheme'],
                                           url=url)
             yield Request(url, self.parse_episode, meta={
-                'config_name': response.meta['config_name'],
+                'config_name': config_name,
                 'name': name,
                 'show': response.meta['show'],
                 'show_url': response.meta['show_url'],
