@@ -75,7 +75,6 @@ class AllocateSubtitlePipeline(object):
             final_path = self.final_path(SERIES[item['config_name']],
                                          item['name'],
                                          index)
-            print("*" * 80, final_path)
             if final_path:
                 guess = guessit(item['name'])
                 config_name = item['config_name']
@@ -104,8 +103,6 @@ class AllocateSubtitlePipeline(object):
                                                **guess)
                 path_glob = path_glob.replace(' ', '_')
                 files = glob(path_glob)
-                print("*" * 80, "GLOB:", path_glob)
-                print("*" * 80, "FILES:", files)
                 if files:  # take first
                     file_path, _ = files[0].rsplit('.', 1)
                     return '{path}-{index}.srt'.format(index=index,
