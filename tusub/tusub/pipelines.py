@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import json
 import logging
 
@@ -8,7 +9,6 @@ from shutil import copyfile
 
 from guessit import guessit
 
-from scrapy import settings
 from scrapy.http import Request
 from scrapy.pipelines.files import FilesPipeline
 
@@ -21,6 +21,13 @@ from .settings import FILES_STORE, \
 logging.getLogger('rebulk.rules').setLevel(logging.WARNING)
 logging.getLogger('rebulk.rebulk').setLevel(logging.WARNING)
 logging.getLogger('rebulk.processors').setLevel(logging.WARNING)
+
+LOG = logging.getLogger('tusub')
+LOG.setLevel(logging.INFO)
+
+LOG_CHANNEL = logging.StreamHandler(sys.stdout)
+LOG_CHANNEL.setLevel(logging.INFO)
+LOG.addHandler(LOG_CHANNEL)
 
 
 class DownloadSubtitlePipeline(FilesPipeline):
@@ -90,6 +97,8 @@ class AllocateSubtitlePipeline(object):
                 spider.saved_cache[config_name][season].append(episode)
                 copyfile(path.join(FILES_STORE, file_info['path']),
                          final_path)
+                LOG.info('Saved subtitle for %s: "%s"', item['name'], final_path)
+                return item
 
     def final_path(self, serie_conf, name, index):
         """Detect closer video file in destination"""
