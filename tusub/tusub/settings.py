@@ -8,7 +8,7 @@ BOT_NAME = 'tusub'
 
 DEBUG = False
 
-LOG_LEVEL = 'INFO'
+# LOG_LEVEL = 'INFO'
 
 SPIDER_MODULES = ['tusub.spiders']
 NEWSPIDER_MODULE = 'tusub.spiders'

@@ -49,11 +49,22 @@ class AllocateSubtitlePipeline(object):
     paths = [
         # root/serie/S01/Name-S01E02-Title.mkv
         '{path}/[Ss]{season:02d}/' + \
-        '*[Ss]?{season:02d}[EeXx]{episode:02d}*.{extension}',
+        '*[Ss]{season:02d}[Ee]{episode:02d}*.{extension}',
         # root/serie/S01/Name-S01E02-Title/Name-S01E02-Title.mkv
         '{path}/[Ss]{season:02d}/' + \
-        '*[Ss]?{season:02d}[EeXx]{episode:02d}*/' +
-        '*[Ss]?{season:02d}[EeXx]{episode:02d}*.{extension}'
+        '*[Ss]{season:02d}[Ee]{episode:02d}*/' +
+        '*[Ss]{season:02d}[Ee]{episode:02d}*.{extension}',
+        # root/serie/S01/Name-01x02-Title.mkv
+        '{path}/[Ss]{season:02d}/' + \
+        '*{season:02d}[Xx]{episode:02d}*.{extension}',
+        # root/serie/S01/Name-01x02-Title/Name-01x02-Title.mkv
+        '{path}/[Ss]{season:02d}/' + \
+        '*{season:02d}[Xx]{episode:02d}*/' +
+        '*{season:02d}[Xx]{episode:02d}*.{extension}',
+        # root/serie/S01/Name-S01E02-Title/Name-01x02-Title.mkv
+        '{path}/[Ss]{season:02d}/' + \
+        '*[Ss]{season:02d}[Ee]{episode:02d}*/' +
+        '*{season:02d}[Xx]{episode:02d}*.{extension}'
     ]
 
     def open_spider(self, spider):
