@@ -50,7 +50,7 @@ SERIES = {
     '12_monkeys': {
         'enabled': False,
         'url': 'https://www.tusubtitulo.com/show/2320',
-        'location': os.path.join(SUBTITLES_FINAL_LOCATION, 'twelve_monkeys')
+        'location': os.path.join(SUBTITLES_FINAL_LOCATION, '12_monkeys')
     },
     'arrow': {
         'enabled': True,
