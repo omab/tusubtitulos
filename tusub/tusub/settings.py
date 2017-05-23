@@ -48,7 +48,7 @@ SUPPORTED_VIDEO_EXTENSIONS = ['mkv', 'mp4']
 
 SERIES = {
     '12_monkeys': {
-        'enabled': False,
+        'enabled': True,
         'url': 'https://www.tusubtitulo.com/show/2320',
         'location': os.path.join(SUBTITLES_FINAL_LOCATION, '12_monkeys')
     },
